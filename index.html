@@ -4,17 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1117" id="meta-theme">
-<meta name="description" content="Сургут коганэ — мини-приложение для Telegram">
 <title>Сургут коганэ</title>
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f81f7'/%3E%3Cpath d='M9 11l5 5-5 5M17 21h7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-
-<!-- Официальный SDK Telegram Mini Apps -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-  /* Локальный шрифт Drafting* Mono (SIL OFL, indestructible type).
-     В нём нет кириллицы, поэтому для русских букв используется системный моноширинный. */
+  /* Шрифты */
   @font-face {
     font-family: "Drafting Mono";
     src: url("fonts/DraftingMono-Regular.woff2") format("woff2");
@@ -22,7 +18,6 @@
     font-style: normal;
     font-display: swap;
   }
-
   @font-face {
     font-family: "Drafting Mono";
     src: url("fonts/DraftingMono-SemiBold.woff2") format("woff2");
@@ -30,8 +25,21 @@
     font-style: normal;
     font-display: swap;
   }
+  @font-face {
+    font-family: "GC Vensca Mono Demo";
+    src: url("fonts/GCVenscaMonoDemo-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Anime Ace";
+    src: url("fonts/AnimeAce.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
 
-  /* ---------- Палитра в духе GitHub (тёмная тема) ---------- */
   :root {
     color-scheme: dark;
     --canvas: #0d1117;
@@ -44,22 +52,19 @@
     --fg-muted: #8b949e;
     --success: #3fb950;
     --shadow: 0 10px 26px rgba(1, 4, 9, .55);
-
     --accent: #2f81f7;
     --accent-2: #1f6feb;
     --accent-soft: rgba(47, 129, 247, .14);
     --mark-a: #388bfd;
     --mark-b: #1f6feb;
-
     --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
     --ui-font: var(--font-system);
   }
 
-  html[data-font="mono"] {
-    --ui-font: "Drafting Mono", ui-monospace, SFMono-Regular, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Noto Sans Mono", Menlo, Consolas, monospace;
-  }
+  html[data-font="mono"] { --ui-font: "Drafting Mono", ui-monospace, monospace; }
+  html[data-font="vensca"] { --ui-font: "GC Vensca Mono Demo", ui-monospace, monospace; }
+  html[data-font="anime"] { --ui-font: "Anime Ace", var(--font-system); }
 
-  /* ---------- Светлая тема ---------- */
   html[data-theme="light"] {
     color-scheme: light;
     --canvas: #ffffff;
@@ -74,1125 +79,241 @@
     --shadow: 0 10px 26px rgba(31, 35, 40, .10);
   }
 
-  /* ---------- Цвета оформления (тёмная тема) ---------- */
-  html[data-accent="blue"] {
-    --accent: #2f81f7;
-    --accent-2: #1f6feb;
-    --accent-soft: rgba(47, 129, 247, .14);
-    --mark-a: #388bfd;
-    --mark-b: #1f6feb;
-  }
+  html[data-accent="blue"] { --accent:#2f81f7; --accent-2:#1f6feb; --accent-soft:rgba(47,129,247,.14); --mark-a:#388bfd; --mark-b:#1f6feb; }
+  html[data-accent="red"]  { --accent:#f85149; --accent-2:#da3633; --accent-soft:rgba(248,81,73,.14);  --mark-a:#ff7b72; --mark-b:#da3633; }
+  html[data-accent="mint"] { --accent:#3fd0b0; --accent-2:#2bb39a; --accent-soft:rgba(63,208,176,.14);  --mark-a:#5fe3c7; --mark-b:#17a98d; }
+  html[data-accent="purple"]{--accent:#bc8cff; --accent-2:#8957e5; --accent-soft:rgba(188,140,255,.15);--mark-a:#d2a8ff; --mark-b:#8957e5; }
+  html[data-accent="white"]{--accent:#f0f6fc; --accent-2:#c9d1d9; --accent-soft:rgba(240,246,252,.12);--mark-a:#f0f6fc; --mark-b:#8b949e; }
 
-  html[data-accent="red"] {
-    --accent: #f85149;
-    --accent-2: #da3633;
-    --accent-soft: rgba(248, 81, 73, .14);
-    --mark-a: #ff7b72;
-    --mark-b: #da3633;
-  }
-
-  html[data-accent="mint"] {
-    --accent: #3fd0b0;
-    --accent-2: #2bb39a;
-    --accent-soft: rgba(63, 208, 176, .14);
-    --mark-a: #5fe3c7;
-    --mark-b: #17a98d;
-  }
-
-  html[data-accent="purple"] {
-    --accent: #bc8cff;
-    --accent-2: #8957e5;
-    --accent-soft: rgba(188, 140, 255, .15);
-    --mark-a: #d2a8ff;
-    --mark-b: #8957e5;
-  }
-
-  /* ---------- Цвета оформления (светлая тема) ---------- */
-  html[data-theme="light"][data-accent="blue"] {
-    --accent: #0969da;
-    --accent-2: #0550ae;
-    --accent-soft: rgba(9, 105, 218, .10);
-    --mark-a: #388bfd;
-    --mark-b: #1f6feb;
-  }
-
-  html[data-theme="light"][data-accent="red"] {
-    --accent: #cf222e;
-    --accent-2: #a40e26;
-    --accent-soft: rgba(207, 34, 46, .10);
-    --mark-a: #f85149;
-    --mark-b: #cf222e;
-  }
-
-  html[data-theme="light"][data-accent="mint"] {
-    --accent: #0f766e;
-    --accent-2: #115e59;
-    --accent-soft: rgba(15, 118, 110, .10);
-    --mark-a: #2dd4bf;
-    --mark-b: #0f766e;
-  }
-
-  html[data-theme="light"][data-accent="purple"] {
-    --accent: #8250df;
-    --accent-2: #6639ba;
-    --accent-soft: rgba(130, 80, 223, .12);
-    --mark-a: #a475f9;
-    --mark-b: #8250df;
-  }
+  html[data-theme="light"][data-accent="white"]{--accent:#24292f; --accent-2:#57606a; --accent-soft:rgba(36,41,47,.08);--mark-a:#ffffff; --mark-b:#d0d7de;}
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   html { background: var(--canvas); }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    min-height: 100dvh;
-    background: var(--canvas);
-    color: var(--fg);
-    font-family: var(--ui-font);
-    font-size: 14px;
-    line-height: 1.45;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  /* Мягкое свечение сверху — как подсветка на главной GitHub */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: -30% 0 auto;
-    height: 60%;
-    background: radial-gradient(50% 60% at 50% 0%, var(--accent-soft), transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ---------- Каркас ---------- */
-  .app {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 480px;
-    min-height: 100dvh;
-    min-height: var(--tg-viewport-stable-height, 100dvh);
-    margin: 0 auto;
-    overflow: hidden;
-    padding:
-      calc(14px + env(safe-area-inset-top))
-      16px
-      calc(16px + env(safe-area-inset-bottom));
-  }
-
-  /* ---------- Шапка ---------- */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 2px 2px 0;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-  }
-
-  .mark {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    color: #fff;
-    background: linear-gradient(150deg, var(--mark-a) 0%, var(--mark-b) 100%);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 4px 12px var(--accent-soft);
-    transition: background .2s ease;
-  }
-
-  .brand-text { min-width: 0; }
-
-  h1 {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -.01em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .sub {
-    margin: 1px 0 0;
-    font-size: 11.5px;
-    color: var(--fg-muted);
-  }
-
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: none;
-    padding: 4px 10px;
-    font-size: 11.5px;
-    font-weight: 500;
-    color: var(--fg-muted);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-  }
-
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--fg-muted);
-  }
-
-  .pill.is-live .dot {
-    background: var(--success);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
-  }
-
-  /* ---------- Контент ---------- */
-  .content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 14px;
-    padding-top: 18px;
-  }
-
-  .card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-
-  .avatar {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 44px;
-    height: 44px;
-    overflow: hidden;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-soft);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    transition: color .2s ease, background-color .2s ease;
-  }
-
-  .avatar img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .profile-text { min-width: 0; }
-
-  .hello {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .hint {
-    margin: 2px 0 0;
-    font-size: 12.5px;
-    line-height: 1.4;
-    color: var(--fg-muted);
-  }
-
-  /* ---------- Меню (прижато к низу) ---------- */
-  .menu {
-    margin-top: auto;
-    padding-top: 8px;
-  }
-
-  .menu-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 0 2px;
-    margin-bottom: 8px;
-  }
-
-  .menu-head h2 {
-    margin: 0;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--fg-muted);
-  }
-
-  .menu-count {
-    font-size: 11px;
-    color: var(--fg-muted);
-  }
-
-  .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .action {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 60px;
-    padding: 10px 12px;
-    font: inherit;
-    color: var(--fg);
-    text-align: left;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color .16s ease, border-color .16s ease, transform .1s ease;
-  }
-
-  .action:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-  }
-
+  body { margin: 0; min-height: 100dvh; background: var(--canvas); color: var(--fg); font-family: var(--ui-font); font-size: 14px; line-height: 1.45; overflow-x: hidden; }
+  body::before { content: ""; position: fixed; inset: -30% 0 auto; height: 60%; background: radial-gradient(50% 60% at 50% 0%, var(--accent-soft), transparent 70%); pointer-events: none; z-index: 0; }
+  .app { position: relative; z-index: 1; display: flex; flex-direction: column; width: 100%; max-width: 480px; min-height: 100dvh; margin: 0 auto; overflow: hidden; padding: calc(14px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; color: #fff; background: linear-gradient(150deg, var(--mark-a), var(--mark-b)); }
+  .brand-text h1 { margin: 0; font-size: 17px; font-weight: 600; }
+  .brand-text .sub { margin: 1px 0 0; font-size: 11.5px; color: var(--fg-muted); }
+  .pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); font-size: 11.5px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-muted); }
+  .pill.is-live .dot { background: var(--success); box-shadow: 0 0 0 3px rgba(63,185,80,.22); }
+  .content { display: flex; flex-direction: column; flex: 1; gap: 14px; padding-top: 18px; }
+  .greet-card { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .greet-card .hello { margin: 0; font-size: 15px; font-weight: 600; }
+  .greet-card .hint { margin: 2px 0 0; font-size: 12.5px; color: var(--fg-muted); }
+  .menu { margin-top: auto; padding-top: 8px; }
+  .menu-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .menu-head h2 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--fg-muted); }
+  .menu-count { font-size: 11px; color: var(--fg-muted); }
+  .actions { display: flex; flex-direction: column; gap: 10px; }
+  .action { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--fg); text-align: left; cursor: pointer; }
+  .action:hover { background: var(--surface-hover); }
   .action:active { transform: scale(.985); }
-
-  .action:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .action-icon {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 38px;
-    height: 38px;
-    color: var(--accent);
-    background: var(--canvas-inset);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    transition: color .2s ease;
-  }
-
-  .action-text {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 1px;
-    min-width: 0;
-  }
-
-  .action-title {
-    font-size: 14.5px;
-    font-weight: 600;
-  }
-
-  .action-note {
-    font-size: 12px;
-    color: var(--fg-muted);
-  }
-
-  .chevron {
-    flex: none;
-    color: var(--fg-muted);
-    transition: transform .16s ease, color .16s ease;
-  }
-
-  .action:hover .chevron {
-    color: var(--fg);
-    transform: translateX(2px);
-  }
-
-  /* ---------- Экран настроек ---------- */
-  .settings {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    padding: inherit;
-    background: var(--canvas);
-    border-radius: inherit;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: opacity .18s ease, transform .22s ease, visibility .22s;
-  }
-
-  .settings.is-open {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-  }
-
-  .settings-top {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 2px 2px 0;
-  }
-
-  .icon-btn {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    color: var(--fg);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    cursor: pointer;
-    transition: background-color .16s ease, border-color .16s ease;
-  }
-
-  .icon-btn:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-  }
-
-  .icon-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .settings-top h2 {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -.01em;
-  }
-
-  .settings-body {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 18px;
-    padding-top: 20px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  .setting-group {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .setting-title {
-    margin: 0;
-    padding: 0 2px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--fg-muted);
-  }
-
-  /* Палитра */
-  .swatches {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-
-  .swatch {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    padding: 11px 2px 10px;
-    font: inherit;
-    font-size: 11.5px;
-    color: var(--fg-muted);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
-  }
-
-  .swatch:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-  }
-
-  .swatch:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .swatch-dot {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, .14) inset;
-    transition: box-shadow .16s ease;
-  }
-
+  .action-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border); background: var(--canvas-inset); color: var(--accent); }
+  .action-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .action-title { font-weight: 600; }
+  .action-note { font-size: 12px; color: var(--fg-muted); }
+  .chevron { color: var(--fg-muted); }
+  .screen { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; padding: inherit; background: var(--canvas); opacity: 0; visibility: hidden; transform: translateY(10px); transition: .22s; }
+  .screen.is-open { opacity: 1; visibility: visible; transform: none; }
+  .screen-top { display: flex; align-items: center; gap: 10px; }
+  .icon-btn { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); color: var(--fg); cursor: pointer; }
+  .screen-top h2 { margin: 0; font-size: 17px; font-weight: 600; }
+  .screen-body { display: flex; flex-direction: column; gap: 14px; flex: 1; padding-top: 18px; overflow-y: auto; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .label { font-size: 12px; color: var(--fg-muted); }
+  .input, .textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg); font: inherit; }
+  .textarea { min-height: 120px; resize: vertical; }
+  .primary { margin-top: auto; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+  html[data-theme="light"] .primary { color: #fff; }
+  html[data-accent="white"] .primary { background: var(--accent); color: var(--canvas); }
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--fg-muted); cursor: pointer; }
+  .swatch-dot { width: 28px; height: 28px; border-radius: 50%; }
   .swatch--red .swatch-dot { background: #f85149; }
   .swatch--blue .swatch-dot { background: #2f81f7; }
   .swatch--mint .swatch-dot { background: #3fd0b0; }
   .swatch--purple .swatch-dot { background: #bc8cff; }
-
-  .swatch[aria-checked="true"] {
-    color: var(--fg);
-    background: var(--accent-soft);
-    border-color: var(--accent);
-  }
-
-  .swatch[aria-checked="true"] .swatch-dot {
-    box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--accent);
-  }
-
-  /* Шрифты */
-  .font-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .font-option {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px;
-    font: inherit;
-    color: var(--fg);
-    text-align: left;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color .16s ease, border-color .16s ease;
-  }
-
-  .font-option:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-  }
-
-  .font-option:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .font-option[aria-checked="true"] {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-  }
-
-  .font-sample {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 40px;
-    height: 40px;
-    font-size: 14px;
-    background: var(--canvas-inset);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-  }
-
-  .font-sample--system { font-family: var(--font-system); }
-
-  .font-sample--mono {
-    font-family: "Drafting Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", monospace;
-  }
-
-  .font-meta {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 1px;
-    min-width: 0;
-  }
-
-  .font-name {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .font-note {
-    font-size: 12px;
-    color: var(--fg-muted);
-  }
-
-  .font-check {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 18px;
-    height: 18px;
-    color: transparent;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
-  }
-
-  .font-option[aria-checked="true"] .font-check {
-    color: var(--canvas);
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .settings-note {
-    margin: 0;
-    padding: 0 2px;
-    font-size: 11.5px;
-    color: var(--fg-muted);
-  }
-
-  /* ---------- Тост ---------- */
-  .toast {
-    position: fixed;
-    left: 50%;
-    bottom: calc(22px + env(safe-area-inset-bottom));
-    z-index: 10;
-    max-width: min(420px, calc(100vw - 32px));
-    padding: 10px 16px;
-    font-size: 13px;
-    color: var(--fg);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    box-shadow: var(--shadow);
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-50%, 14px);
-    transition: opacity .2s ease, transform .2s ease;
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-
-  /* ---------- Анимация появления ---------- */
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  .topbar    { animation: rise .35s ease backwards; }
-  .card      { animation: rise .4s .06s ease backwards; }
-  .menu-head { animation: rise .4s .1s ease backwards; }
-  .action    { animation: rise .4s calc(.14s + var(--i) * .06s) ease backwards; }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-
-  /* На широких экранах — аккуратная «карточка» приложения */
-  @media (min-width: 600px) {
-    body {
-      display: grid;
-      place-items: center;
-      background: var(--canvas-inset);
-      padding: 24px;
-    }
-
-    body::before { display: none; }
-
-    .app {
-      min-height: 0;
-      height: min(780px, calc(100dvh - 48px));
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--canvas);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      overflow: hidden;
-    }
-  }
+  .swatch--white .swatch-dot { background: #f6f8fa; border: 1px solid #8b949e; }
+  .swatch[aria-checked="true"] { color: var(--fg); border-color: var(--accent); }
+  .font-options { display: flex; flex-direction: column; gap: 10px; }
+  .font-option { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); text-align: left; cursor: pointer; color: var(--fg); }
+  .font-option[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 14px); padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--fg); opacity: 0; pointer-events: none; transition: .2s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 </style>
 
 <script>
-  /* Тема, цвет и шрифт до первой отрисовки — чтобы не было вспышки */
-  (function () {
-    var root = document.documentElement;
-    var scheme = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.colorScheme;
-    if (!scheme) {
-      scheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-    }
-    root.dataset.theme = scheme === "light" ? "light" : "dark";
-
-    try {
-      var accent = localStorage.getItem("sk-accent");
-      if (accent === "red" || accent === "blue" || accent === "mint" || accent === "purple") {
-        root.dataset.accent = accent;
-      }
-      if (localStorage.getItem("sk-font") === "mono") {
-        root.dataset.font = "mono";
-      }
-    } catch (e) { /* приватный режим — используем значения по умолчанию */ }
-  })();
+(function(){
+  var root = document.documentElement;
+  var scheme = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.colorScheme;
+  if(!scheme) scheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  root.dataset.theme = scheme === 'light' ? 'light' : 'dark';
+  try {
+    var a = localStorage.getItem('sk-accent');
+    if(['red','blue','mint','purple','white'].indexOf(a) !== -1) root.dataset.accent = a;
+    var f = localStorage.getItem('sk-font');
+    if(['mono','vensca','anime'].indexOf(f) !== -1) root.dataset.font = f;
+  } catch(e){}
+})();
 </script>
 </head>
 <body>
-
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <span class="mark" aria-hidden="true">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m5 7 5 5-5 5"/><path d="M13 17h6"/>
-        </svg>
-      </span>
+      <span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 7 5 5-5 5"/><path d="M13 17h6"/></svg></span>
       <div class="brand-text">
         <h1>Сургут коганэ</h1>
         <p class="sub">мини-приложение</p>
       </div>
     </div>
-
-    <span class="pill" id="env-pill">
-      <span class="dot"></span>
-      <span id="env-text">браузер</span>
-    </span>
+    <span class="pill" id="env-pill"><span class="dot"></span><span id="env-text">браузер</span></span>
   </header>
 
   <main class="content">
-    <section class="card">
-      <div class="avatar" id="avatar" aria-hidden="true">
-        <span id="initials">СК</span>
-      </div>
-      <div class="profile-text">
-        <p class="hello" id="greeting">Привет!</p>
-        <p class="hint" id="profile-note">добро пожаловать</p>
-      </div>
+    <section class="greet-card">
+      <p class="hello" id="greeting">Привет!</p>
+      <p class="hint">добро пожаловать</p>
     </section>
 
-    <section class="menu" aria-labelledby="menu-title">
+    <section class="menu">
       <div class="menu-head">
-        <h2 id="menu-title">Меню</h2>
+        <h2>Меню</h2>
         <span class="menu-count">3 раздела</span>
       </div>
-
       <div class="actions">
-        <button class="action" type="button" data-action="1" style="--i:0">
-          <span class="action-icon">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 10.5 12 3l9 7.5"/>
-              <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
-            </svg>
-          </span>
-          <span class="action-text">
-            <span class="action-title">Кнопка 1</span>
-            <span class="action-note">Главный раздел</span>
-          </span>
-          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m9 6 6 6-6 6"/>
-          </svg>
-        </button>
-
-        <button class="action" type="button" data-action="2" style="--i:1">
-          <span class="action-icon">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>
-            </svg>
-          </span>
-          <span class="action-text">
-            <span class="action-title">Кнопка 2</span>
-            <span class="action-note">Избранное</span>
-          </span>
-          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m9 6 6 6-6 6"/>
-          </svg>
-        </button>
-
-        <button class="action" type="button" data-action="settings" style="--i:2">
-          <span class="action-icon">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.35a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.65 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.65a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.65a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.35 9v.09A1.7 1.7 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/>
-            </svg>
-          </span>
-          <span class="action-text">
-            <span class="action-title">Настройки</span>
-            <span class="action-note">Цвет и шрифт</span>
-          </span>
-          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m9 6 6 6-6 6"/>
-          </svg>
-        </button>
+        <button class="action" data-action="1"><span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h4v-6h6v6h4V9.5"/></svg></span><span class="action-text"><span class="action-title">Кнопка 1</span><span class="action-note">Главный раздел</span></span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+        <button class="action" data-action="write"><span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="action-text"><span class="action-title">Написать</span><span class="action-note">Сообщение пользователю</span></span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+        <button class="action" data-action="settings"><span class="action-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.35a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.65 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.65a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.65a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.35 9a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg></span><span class="action-text"><span class="action-title">Настройки</span><span class="action-note">Цвет и шрифт</span></span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
       </div>
     </section>
   </main>
 
-  <!-- ---------- Настройки ---------- -->
-  <section class="settings" id="settings" aria-hidden="true" aria-labelledby="settings-title">
-    <header class="settings-top">
-      <button class="icon-btn" type="button" id="settings-back" aria-label="Назад">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="m15 6-6 6 6 6"/>
-        </svg>
-      </button>
-      <h2 id="settings-title">Настройки</h2>
-    </header>
+  <section class="screen" id="writer">
+    <header class="screen-top"><button class="icon-btn" id="writer-back"><svg width="18" height="18" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><h2>Написать</h2></header>
+    <div class="screen-body">
+      <div class="field"><span class="label">Telegram-юзернейм</span><input class="input" id="target-username" placeholder="например username или @username" autocomplete="off"></div>
+      <div class="field"><span class="label">Текст сообщения</span><textarea class="textarea" id="message-text" placeholder="Напиши сообщение..."></textarea></div>
+      <button class="primary" id="send-message">Отправить</button>
+    </div>
+  </section>
 
-    <div class="settings-body">
-      <section class="setting-group">
-        <h3 class="setting-title" id="accent-title">Цвет оформления</h3>
-        <div class="swatches" role="radiogroup" aria-labelledby="accent-title">
-          <button class="swatch swatch--red" type="button" data-accent="red" role="radio" aria-checked="false">
-            <span class="swatch-dot" aria-hidden="true"></span>
-            <span>Красный</span>
-          </button>
-          <button class="swatch swatch--blue" type="button" data-accent="blue" role="radio" aria-checked="true">
-            <span class="swatch-dot" aria-hidden="true"></span>
-            <span>Синий</span>
-          </button>
-          <button class="swatch swatch--mint" type="button" data-accent="mint" role="radio" aria-checked="false">
-            <span class="swatch-dot" aria-hidden="true"></span>
-            <span>Мятовый</span>
-          </button>
-          <button class="swatch swatch--purple" type="button" data-accent="purple" role="radio" aria-checked="false">
-            <span class="swatch-dot" aria-hidden="true"></span>
-            <span>Фиолетовый</span>
-          </button>
+  <section class="screen" id="settings">
+    <header class="screen-top"><button class="icon-btn" id="settings-back"><svg width="18" height="18" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><h2>Настройки</h2></header>
+    <div class="screen-body">
+      <div class="field"><span class="label">Цвет оформления</span>
+        <div class="swatches">
+          <button class="swatch swatch--red" data-accent="red" aria-checked="false"><span class="swatch-dot"></span>Красный</button>
+          <button class="swatch swatch--blue" data-accent="blue" aria-checked="true"><span class="swatch-dot"></span>Синий</button>
+          <button class="swatch swatch--mint" data-accent="mint" aria-checked="false"><span class="swatch-dot"></span>Мятовый</button>
+          <button class="swatch swatch--purple" data-accent="purple" aria-checked="false"><span class="swatch-dot"></span>Фиолетовый</button>
+          <button class="swatch swatch--white" data-accent="white" aria-checked="false"><span class="swatch-dot"></span>Белый</button>
         </div>
-      </section>
-
-      <section class="setting-group">
-        <h3 class="setting-title" id="font-title">Шрифт</h3>
-        <div class="font-options" role="radiogroup" aria-labelledby="font-title">
-          <button class="font-option" type="button" data-font="system" role="radio" aria-checked="true">
-            <span class="font-sample font-sample--system" aria-hidden="true">Aa</span>
-            <span class="font-meta">
-              <span class="font-name">Системный</span>
-              <span class="font-note">Как сейчас</span>
-            </span>
-            <span class="font-check" aria-hidden="true">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m5 12 4.5 4.5L19 7"/>
-              </svg>
-            </span>
-          </button>
-
-          <button class="font-option" type="button" data-font="mono" role="radio" aria-checked="false">
-            <span class="font-sample font-sample--mono" aria-hidden="true">Aa</span>
-            <span class="font-meta">
-              <span class="font-name">Drafting* Mono</span>
-              <span class="font-note">Моноширинный</span>
-            </span>
-            <span class="font-check" aria-hidden="true">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m5 12 4.5 4.5L19 7"/>
-              </svg>
-            </span>
-          </button>
+      </div>
+      <div class="field"><span class="label">Шрифт</span>
+        <div class="font-options">
+          <button class="font-option" data-font="system" aria-checked="true">Системный</button>
+          <button class="font-option" data-font="mono" aria-checked="false">Drafting* Mono</button>
+          <button class="font-option" data-font="vensca" aria-checked="false">GC Vensca Mono Demo</button>
+          <button class="font-option" data-font="anime" aria-checked="false">Anime Ace</button>
         </div>
-      </section>
-
-      <p class="settings-note">Настройки сохраняются на этом устройстве.</p>
+      </div>
     </div>
   </section>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-  (function () {
-    "use strict";
+(function(){
+  "use strict";
+  var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var root = document.documentElement;
+  var greeting = document.getElementById('greeting');
+  var envPill = document.getElementById('env-pill');
+  var envText = document.getElementById('env-text');
+  var toastEl = document.getElementById('toast');
+  var writer = document.getElementById('writer');
+  var writerBack = document.getElementById('writer-back');
+  var targetU = document.getElementById('target-username');
+  var msgT = document.getElementById('message-text');
+  var sendM = document.getElementById('send-message');
+  var settings = document.getElementById('settings');
+  var settingsBack = document.getElementById('settings-back');
+  var toastTimer = null;
 
-    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    var root = document.documentElement;
-    var metaTheme = document.getElementById("meta-theme");
-    var envPill = document.getElementById("env-pill");
-    var envText = document.getElementById("env-text");
-    var greeting = document.getElementById("greeting");
-    var profileNote = document.getElementById("profile-note");
-    var avatar = document.getElementById("avatar");
-    var initials = document.getElementById("initials");
-    var toastEl = document.getElementById("toast");
-    var settings = document.getElementById("settings");
-    var settingsBack = document.getElementById("settings-back");
-    var settingsBody = document.querySelector(".settings-body");
-    var toastTimer = null;
-    var lastFocus = null;
+  function toast(m){ toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 1900); }
+  function haptic(){ try { if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); else if(navigator.vibrate) navigator.vibrate(8); } catch(e){} }
+  function hasBack(){ return Boolean(tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')); }
 
-    /* ---------- Хранилище настроек ---------- */
-    function readSetting(key) {
-      try { return localStorage.getItem(key); } catch (e) { return null; }
+  function setAccent(name){
+    if(['red','blue','mint','purple','white'].indexOf(name) === -1) name = 'blue';
+    root.dataset.accent = name;
+    document.querySelectorAll('.swatch').forEach(function(b){ b.setAttribute('aria-checked', String(b.getAttribute('data-accent') === name)); });
+    try { localStorage.setItem('sk-accent', name); } catch(e){}
+  }
+  function setFont(name){
+    if(['system','mono','vensca','anime'].indexOf(name) === -1) name = 'system';
+    root.dataset.font = name;
+    document.querySelectorAll('.font-option').forEach(function(b){ b.setAttribute('aria-checked', String(b.getAttribute('data-font') === name)); });
+    try { localStorage.setItem('sk-font', name === 'system' ? '' : name); } catch(e){}
+  }
+
+  if(tg){
+    try { tg.ready(); tg.expand(); } catch(e){}
+    try { if(tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes(); } catch(e){}
+    if(tg.initDataUnsafe && tg.initDataUnsafe.user){
+      var u = tg.initDataUnsafe.user;
+      greeting.textContent = u.username ? 'Привет, @' + u.username : 'Привет, ' + (u.first_name || 'друг');
+      envPill.classList.add('is-live');
+      envText.textContent = 'Telegram';
     }
-
-    function writeSetting(key, value) {
-      try { localStorage.setItem(key, value); } catch (e) { /* noop */ }
+    if(hasBack()){
+      try { tg.BackButton.onClick(function(){ if(writer.classList.contains('is-open')){ writer.classList.remove('is-open'); tg.BackButton.hide(); return; } if(settings.classList.contains('is-open')){ settings.classList.remove('is-open'); tg.BackButton.hide(); return; } }); } catch(e){}
     }
+  }
 
-    /* ---------- Тема ---------- */
-    function preferredScheme() {
-      if (tg && tg.colorScheme) return tg.colorScheme;
-      return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-    }
+  document.querySelectorAll('.action').forEach(function(b){
+    b.addEventListener('click', function(){
+      var a = b.getAttribute('data-action');
+      if(a === 'settings'){ settings.classList.add('is-open'); if(hasBack()) try{ tg.BackButton.show(); }catch(e){} return; }
+      if(a === 'write'){ writer.classList.add('is-open'); if(hasBack()) try{ tg.BackButton.show(); }catch(e){} return; }
+      if(a === '1'){ haptic(); toast('«Кнопка 1» — раздел пока не подключён'); }
+    });
+  });
 
-    function applyTheme(scheme) {
-      var isLight = scheme === "light";
-      root.dataset.theme = isLight ? "light" : "dark";
+  writerBack.addEventListener('click', function(){ writer.classList.remove('is-open'); if(hasBack() && !settings.classList.contains('is-open')) try{ tg.BackButton.hide(); }catch(e){} });
+  settingsBack.addEventListener('click', function(){ settings.classList.remove('is-open'); if(hasBack() && !writer.classList.contains('is-open')) try{ tg.BackButton.hide(); }catch(e){} });
 
-      var bg = isLight ? "#ffffff" : "#0d1117";
-      if (metaTheme) metaTheme.setAttribute("content", bg);
+  document.querySelectorAll('.swatch').forEach(function(b){ b.addEventListener('click', function(){ setAccent(b.getAttribute('data-accent')); haptic(); }); });
+  document.querySelectorAll('.font-option').forEach(function(b){ b.addEventListener('click', function(){ setFont(b.getAttribute('data-font')); haptic(); }); });
 
-      try {
-        if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) {
-          tg.setHeaderColor(bg);
-          tg.setBackgroundColor(bg);
-        }
-      } catch (e) { /* старые клиенты — просто игнорируем */ }
-    }
-
-    /* ---------- Цвета и шрифт ---------- */
-    var ACCENTS = ["red", "blue", "mint", "purple"];
-
-    function setAccent(name, persist) {
-      if (ACCENTS.indexOf(name) === -1) name = "blue";
-      root.dataset.accent = name;
-
-      Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (el) {
-        el.setAttribute("aria-checked", String(el.getAttribute("data-accent") === name));
-      });
-
-      if (persist) writeSetting("sk-accent", name);
-    }
-
-    function setFont(name, persist) {
-      name = name === "mono" ? "mono" : "system";
-      root.dataset.font = name;
-
-      Array.prototype.forEach.call(document.querySelectorAll(".font-option"), function (el) {
-        el.setAttribute("aria-checked", String(el.getAttribute("data-font") === name));
-      });
-
-      if (persist) writeSetting("sk-font", name);
-    }
-
-    function haptic(type) {
-      try {
-        if (tg && tg.HapticFeedback && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) {
-          if (type === "select") tg.HapticFeedback.selectionChanged();
-          else tg.HapticFeedback.impactOccurred("light");
-          return;
-        }
-        if (type === "tap" && navigator.vibrate) navigator.vibrate(8);
-      } catch (e) { /* noop */ }
-    }
-
-    /* ---------- Уведомление внизу ---------- */
-    function toast(message) {
-      toastEl.textContent = message;
-      toastEl.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () {
-        toastEl.classList.remove("show");
-      }, 1900);
-    }
-
-    /* ---------- Настройки: открыть / закрыть ---------- */
-    function hasBackButton() {
-      return Boolean(tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1"));
-    }
-
-    function openSettings() {
-      lastFocus = document.activeElement;
-      settings.classList.add("is-open");
-      settings.setAttribute("aria-hidden", "false");
-      if (settingsBody) settingsBody.scrollTop = 0;
-      haptic("tap");
-
-      if (hasBackButton()) {
-        try { tg.BackButton.show(); } catch (e) {}
+  sendM.addEventListener('click', function(){
+    var username = (targetU.value || '').trim().replace(/^@+/, '');
+    var text = (msgT.value || '').trim();
+    if(!username){ toast('Укажи Telegram-юзернейм'); targetU.focus(); return; }
+    if(!text){ toast('Напиши текст сообщения'); msgT.focus(); return; }
+    haptic();
+    try {
+      if(tg && tg.sendData){
+        tg.sendData(JSON.stringify({ type: 'direct_message', username: username, text: text }));
+      } else {
+        toast('Открой приложение из бота');
       }
-      setTimeout(function () {
-        settingsBack.focus({ preventScroll: true });
-      }, 60);
+    } catch(e){
+      toast('Не удалось отправить');
     }
+  });
 
-    function closeSettings() {
-      settings.classList.remove("is-open");
-      settings.setAttribute("aria-hidden", "true");
-
-      if (hasBackButton()) {
-        try { tg.BackButton.hide(); } catch (e) {}
-      }
-      if (lastFocus && lastFocus.focus) {
-        lastFocus.focus({ preventScroll: true });
-      }
-    }
-
-    /* ---------- Инициализация Telegram ---------- */
-    function initTelegram() {
-      if (!tg) return;
-
-      try { tg.ready(); } catch (e) {}
-      try { tg.expand(); } catch (e) {}
-      try {
-        // Свайп вниз для закрытия отключаем только там, где метод поддерживается (Bot API 7.7+)
-        if (tg.isVersionAtLeast && tg.isVersionAtLeast("7.7")) tg.disableVerticalSwipes();
-      } catch (e) {}
-
-      applyTheme(preferredScheme());
-
-      try {
-        tg.onEvent("themeChanged", function () {
-          applyTheme(tg.colorScheme);
-        });
-      } catch (e) {}
-
-      // Системная кнопка «Назад» закрывает настройки
-      if (hasBackButton()) {
-        try {
-          tg.BackButton.onClick(function () {
-            if (settings.classList.contains("is-open")) closeSettings();
-          });
-        } catch (e) {}
-      }
-    }
-
-    /* ---------- Профиль пользователя ---------- */
-    function initialsOf(user) {
-      var first = user.first_name || user.username || "?";
-      var last = user.last_name ? user.last_name.charAt(0) : "";
-      return (first.charAt(0) + last).toUpperCase();
-    }
-
-    function renderAvatar(user) {
-      initials.textContent = initialsOf(user);
-
-      // photo_url приходит не всегда, поэтому пробуем ещё публичную аватарку по username
-      var sources = [];
-      if (user.photo_url) sources.push(user.photo_url);
-      if (user.username) {
-        sources.push("https://t.me/i/userpic/320/" + encodeURIComponent(user.username) + ".jpg");
-      }
-
-      var index = 0;
-
-      function tryNext() {
-        if (index >= sources.length) return; // остаются инициалы
-
-        var img = new Image();
-        img.alt = "";
-        img.decoding = "async";
-        img.referrerPolicy = "no-referrer";
-
-        img.onload = function () {
-          // Важно: заменяем содержимое, иначе инициалы и фото окажутся в двух строках грида
-          avatar.replaceChildren(img);
-        };
-
-        img.onerror = function () {
-          index += 1;
-          tryNext();
-        };
-
-        img.src = sources[index];
-      }
-
-      tryNext();
-    }
-
-    function renderProfile() {
-      var user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
-      var insideTelegram = Boolean(tg && (tg.initData || user));
-
-      if (insideTelegram) {
-        envPill.classList.add("is-live");
-        envText.textContent = "Telegram";
-      }
-
-      profileNote.textContent = "добро пожаловать";
-
-      if (!user) return;
-
-      greeting.textContent = user.username
-        ? "Привет, @" + user.username
-        : "Привет, " + (user.first_name || "друг");
-
-      renderAvatar(user);
-    }
-
-    /* ---------- Кнопки меню и настройки ---------- */
-    function initActions() {
-      Array.prototype.forEach.call(document.querySelectorAll(".action"), function (button) {
-        button.addEventListener("click", function () {
-          var action = button.getAttribute("data-action");
-          var label = button.querySelector(".action-title").textContent;
-
-          if (action === "settings") {
-            openSettings();
-            return;
-          }
-
-          haptic("tap");
-          toast("«" + label + "» — раздел пока не подключён");
-
-          /* Точка расширения: слушай событие и подключай свой экран.
-             window.addEventListener("miniapp:action", (e) => { ... e.detail.action ... }) */
-          try {
-            window.dispatchEvent(new CustomEvent("miniapp:action", {
-              detail: { action: action, label: label }
-            }));
-          } catch (e) {}
-        });
-      });
-
-      Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (button) {
-        button.addEventListener("click", function () {
-          setAccent(button.getAttribute("data-accent"), true);
-          haptic("select");
-        });
-      });
-
-      Array.prototype.forEach.call(document.querySelectorAll(".font-option"), function (button) {
-        button.addEventListener("click", function () {
-          setFont(button.getAttribute("data-font"), true);
-          haptic("select");
-        });
-      });
-
-      settingsBack.addEventListener("click", closeSettings);
-
-      document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && settings.classList.contains("is-open")) {
-          closeSettings();
-        }
-      });
-    }
-
-    initTelegram();
-    applyTheme(preferredScheme());
-    setAccent(root.dataset.accent, false);
-    setFont(root.dataset.font, false);
-    renderProfile();
-    initActions();
-  })();
+  try {
+    var sa = localStorage.getItem('sk-accent'); if(sa) setAccent(sa);
+    var sf = localStorage.getItem('sk-font'); if(sf) setFont(sf);
+  } catch(e){}
+})();
 </script>
 </body>
 </html>
