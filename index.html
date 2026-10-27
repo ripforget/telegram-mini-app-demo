@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117" id="meta-theme">
+<meta name="description" content="Сургут коганэ — мини-приложение для Telegram">
+<title>Сургут коганэ</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f81f7'/%3E%3Cpath d='M9 11l5 5-5 5M17 21h7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<!-- Официальный SDK Telegram Mini Apps -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+  /* ---------- Палитра в духе GitHub (тёмная и светлая темы) ---------- */
+  :root {
+    color-scheme: dark;
+    --canvas: #0d1117;
+    --canvas-inset: #010409;
+    --surface: #161b22;
+    --surface-hover: #1c2129;
+    --border: #30363d;
+    --border-hover: #484f58;
+    --fg: #e6edf3;
+    --fg-muted: #8b949e;
+    --accent: #2f81f7;
+    --accent-soft: rgba(47, 129, 247, .14);
+    --success: #3fb950;
+    --shadow: 0 10px 26px rgba(1, 4, 9, .55);
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
+    --canvas: #ffffff;
+    --canvas-inset: #f6f8fa;
+    --surface: #f6f8fa;
+    --surface-hover: #eef1f4;
+    --border: #d0d7de;
+    --border-hover: #afb8c1;
+    --fg: #1f2328;
+    --fg-muted: #59636e;
+    --accent: #0969da;
+    --accent-soft: rgba(9, 105, 218, .10);
+    --success: #1a7f37;
+    --shadow: 0 10px 26px rgba(31, 35, 40, .10);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { background: var(--canvas); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--canvas);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Мягкое свечение сверху — как подсветка на главной GitHub */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -30% 0 auto;
+    height: 60%;
+    background: radial-gradient(50% 60% at 50% 0%, var(--accent-soft), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---------- Каркас ---------- */
+  .app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100dvh;
+    min-height: var(--tg-viewport-stable-height, 100dvh);
+    margin: 0 auto;
+    padding:
+      calc(14px + env(safe-area-inset-top))
+      16px
+      calc(16px + env(safe-area-inset-bottom));
+  }
+
+  /* ---------- Шапка ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 2px 0;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    color: #fff;
+    background: linear-gradient(150deg, #388bfd 0%, #1f6feb 55%, #1a5fd0 100%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 4px 12px rgba(31, 111, 235, .30);
+  }
+
+  .brand-text { min-width: 0; }
+
+  h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sub {
+    margin: 1px 0 0;
+    font-size: 11.5px;
+    color: var(--fg-muted);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--fg-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg-muted);
+  }
+
+  .pill.is-live .dot {
+    background: var(--success);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
+  }
+
+  /* ---------- Контент ---------- */
+  .content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 14px;
+    padding-top: 18px;
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+  }
+
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .profile-text { min-width: 0; }
+
+  .hello {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hint {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--fg-muted);
+  }
+
+  .note {
+    display: flex;
+    gap: 10px;
+    padding: 12px 13px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--fg-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+  }
+
+  .note svg { flex: none; margin-top: 1px; color: var(--accent); }
+  .note p { margin: 0; }
+
+  /* ---------- Меню (прижато к низу) ---------- */
+  .menu {
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  .menu-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-bottom: 8px;
+  }
+
+  .menu-head h2 {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  .menu-count {
+    font-size: 11px;
+    color: var(--fg-muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--fg);
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color .16s ease, border-color .16s ease, transform .1s ease;
+  }
+
+  .action:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+  }
+
+  .action:active { transform: scale(.985); }
+
+  .action:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .action-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    color: var(--accent);
+    background: var(--canvas-inset);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+
+  .action-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .action-title {
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  .action-note {
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+
+  .chevron {
+    flex: none;
+    color: var(--fg-muted);
+    transition: transform .16s ease, color .16s ease;
+  }
+
+  .action:hover .chevron {
+    color: var(--fg);
+    transform: translateX(2px);
+  }
+
+  /* ---------- Тост ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    z-index: 10;
+    max-width: min(420px, calc(100vw - 32px));
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--fg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 14px);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* ---------- Анимация появления ---------- */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .topbar    { animation: rise .35s ease backwards; }
+  .card      { animation: rise .4s .04s ease backwards; }
+  .note      { animation: rise .4s .08s ease backwards; }
+  .menu-head { animation: rise .4s .12s ease backwards; }
+  .action    { animation: rise .4s calc(.16s + var(--i) * .06s) ease backwards; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* На широких экранах — аккуратная «карточка» приложения */
+  @media (min-width: 600px) {
+    body {
+      display: grid;
+      place-items: center;
+      background: var(--canvas-inset);
+      padding: 24px;
+    }
+
+    body::before { display: none; }
+
+    .app {
+      min-height: 0;
+      height: min(780px, calc(100dvh - 48px));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--canvas);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      overflow: hidden;
+    }
+  }
+</style>
+
+<script>
+  /* Тема до первой отрисовки — чтобы не было вспышки белым/чёрным */
+  (function () {
+    var scheme = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.colorScheme;
+    if (!scheme) {
+      scheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+    document.documentElement.dataset.theme = scheme === "light" ? "light" : "dark";
+  })();
+</script>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m5 7 5 5-5 5"/><path d="M13 17h6"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>Сургут коганэ</h1>
+        <p class="sub">мини-приложение</p>
+      </div>
+    </div>
+
+    <span class="pill" id="env-pill">
+      <span class="dot"></span>
+      <span id="env-text">браузер</span>
+    </span>
+  </header>
+
+  <main class="content">
+    <section class="card">
+      <div class="avatar" id="avatar" aria-hidden="true">
+        <span id="initials">СК</span>
+      </div>
+      <div class="profile-text">
+        <p class="hello" id="greeting">Привет!</p>
+        <p class="hint" id="profile-note">Выбери раздел в меню ниже.</p>
+      </div>
+    </section>
+
+    <aside class="note">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>
+      </svg>
+      <p>Нажми на любую кнопку — сработает вибрация и появится уведомление. Это меню можно наполнить своими разделами.</p>
+    </aside>
+
+    <section class="menu" aria-labelledby="menu-title">
+      <div class="menu-head">
+        <h2 id="menu-title">Меню</h2>
+        <span class="menu-count">3 раздела</span>
+      </div>
+
+      <div class="actions">
+        <button class="action" type="button" data-action="1" style="--i:0">
+          <span class="action-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 10.5 12 3l9 7.5"/>
+              <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
+            </svg>
+          </span>
+          <span class="action-text">
+            <span class="action-title">Кнопка 1</span>
+            <span class="action-note">Главный раздел</span>
+          </span>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 6 6 6-6 6"/>
+          </svg>
+        </button>
+
+        <button class="action" type="button" data-action="2" style="--i:1">
+          <span class="action-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>
+            </svg>
+          </span>
+          <span class="action-text">
+            <span class="action-title">Кнопка 2</span>
+            <span class="action-note">Избранное</span>
+          </span>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 6 6 6-6 6"/>
+          </svg>
+        </button>
+
+        <button class="action" type="button" data-action="3" style="--i:2">
+          <span class="action-icon">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.35a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.65 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.65a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.65a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.35 9v.09A1.7 1.7 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/>
+            </svg>
+          </span>
+          <span class="action-text">
+            <span class="action-title">Кнопка 3</span>
+            <span class="action-note">Настройки</span>
+          </span>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 6 6 6-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  (function () {
+    "use strict";
+
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    var root = document.documentElement;
+    var metaTheme = document.getElementById("meta-theme");
+    var envPill = document.getElementById("env-pill");
+    var envText = document.getElementById("env-text");
+    var greeting = document.getElementById("greeting");
+    var profileNote = document.getElementById("profile-note");
+    var avatar = document.getElementById("avatar");
+    var initials = document.getElementById("initials");
+    var toastEl = document.getElementById("toast");
+    var toastTimer = null;
+
+    /* ---------- Тема: берём из Telegram, иначе из системы ---------- */
+    function preferredScheme() {
+      if (tg && tg.colorScheme) return tg.colorScheme;
+      return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+
+    function applyTheme(scheme) {
+      var isLight = scheme === "light";
+      root.dataset.theme = isLight ? "light" : "dark";
+
+      var bg = isLight ? "#ffffff" : "#0d1117";
+      if (metaTheme) metaTheme.setAttribute("content", bg);
+
+      try {
+        if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) {
+          tg.setHeaderColor(bg);
+          tg.setBackgroundColor(bg);
+        }
+      } catch (e) { /* старые клиенты — просто игнорируем */ }
+    }
+
+    /* ---------- Уведомление внизу ---------- */
+    function toast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        toastEl.classList.remove("show");
+      }, 1900);
+    }
+
+    function tapFeedback() {
+      try {
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.impactOccurred("light");
+        } else if (navigator.vibrate) {
+          navigator.vibrate(8);
+        }
+      } catch (e) { /* noop */ }
+    }
+
+    /* ---------- Инициализация Telegram ---------- */
+    function initTelegram() {
+      if (!tg) return;
+
+      try { tg.ready(); } catch (e) {}
+      try { tg.expand(); } catch (e) {}
+      try {
+        // Свайп вниз для закрытия отключаем только там, где метод поддерживается (Bot API 7.7+)
+        if (tg.isVersionAtLeast && tg.isVersionAtLeast("7.7")) tg.disableVerticalSwipes();
+      } catch (e) {}
+
+      applyTheme(preferredScheme());
+
+      try {
+        tg.onEvent("themeChanged", function () {
+          applyTheme(tg.colorScheme);
+        });
+      } catch (e) {}
+    }
+
+    /* ---------- Профиль пользователя (если открыто в Telegram) ---------- */
+    function renderProfile() {
+      var user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+      var insideTelegram = Boolean(tg && (tg.initData || user));
+
+      if (insideTelegram) {
+        envPill.classList.add("is-live");
+        envText.textContent = "Telegram";
+      }
+
+      if (user) {
+        var first = user.first_name || user.username || "друг";
+        greeting.textContent = "Привет, " + first + "!";
+
+        profileNote.textContent = user.username
+          ? "@" + user.username + " · добро пожаловать"
+          : "Добро пожаловать в мини-приложение";
+
+        var letters = (user.first_name || user.username || "?")
+          .trim()
+          .charAt(0)
+          .toUpperCase();
+        if (user.last_name) letters += user.last_name.trim().charAt(0).toUpperCase();
+
+        if (user.photo_url) {
+          var img = document.createElement("img");
+          img.src = user.photo_url;
+          img.alt = "";
+          img.onerror = function () {
+            img.remove();
+            initials.textContent = letters;
+          };
+          avatar.appendChild(img);
+        } else {
+          initials.textContent = letters;
+        }
+      } else {
+        profileNote.textContent = "Открой приложение внутри Telegram — покажем твой профиль.";
+      }
+    }
+
+    /* ---------- Кнопки меню ---------- */
+    function initActions() {
+      var buttons = document.querySelectorAll(".action");
+
+      Array.prototype.forEach.call(buttons, function (button) {
+        button.addEventListener("click", function () {
+          var action = button.getAttribute("data-action");
+          var label = button.querySelector(".action-title").textContent;
+
+          tapFeedback();
+          toast("«" + label + "» — раздел пока не подключён");
+
+          /* Точка расширения: слушай событие и подключай свой экран.
+             window.addEventListener("miniapp:action", (e) => { ... e.detail.action ... }) */
+          try {
+            window.dispatchEvent(new CustomEvent("miniapp:action", {
+              detail: { action: action, label: label }
+            }));
+          } catch (e) {}
+        });
+      });
+    }
+
+    initTelegram();
+    applyTheme(preferredScheme());
+    renderProfile();
+    initActions();
+  })();
+</script>
+</body>
+</html>
