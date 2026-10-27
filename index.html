@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="dark" data-accent="blue" data-font="system">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -13,7 +13,25 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-  /* ---------- Палитра в духе GitHub (тёмная и светлая темы) ---------- */
+  /* Локальный шрифт Drafting* Mono (SIL OFL, indestructible type).
+     В нём нет кириллицы, поэтому для русских букв используется системный моноширинный. */
+  @font-face {
+    font-family: "Drafting Mono";
+    src: url("fonts/DraftingMono-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Drafting Mono";
+    src: url("fonts/DraftingMono-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* ---------- Палитра в духе GitHub (тёмная тема) ---------- */
   :root {
     color-scheme: dark;
     --canvas: #0d1117;
@@ -24,12 +42,24 @@
     --border-hover: #484f58;
     --fg: #e6edf3;
     --fg-muted: #8b949e;
-    --accent: #2f81f7;
-    --accent-soft: rgba(47, 129, 247, .14);
     --success: #3fb950;
     --shadow: 0 10px 26px rgba(1, 4, 9, .55);
+
+    --accent: #2f81f7;
+    --accent-2: #1f6feb;
+    --accent-soft: rgba(47, 129, 247, .14);
+    --mark-a: #388bfd;
+    --mark-b: #1f6feb;
+
+    --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    --ui-font: var(--font-system);
   }
 
+  html[data-font="mono"] {
+    --ui-font: "Drafting Mono", ui-monospace, SFMono-Regular, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Noto Sans Mono", Menlo, Consolas, monospace;
+  }
+
+  /* ---------- Светлая тема ---------- */
   html[data-theme="light"] {
     color-scheme: light;
     --canvas: #ffffff;
@@ -40,10 +70,74 @@
     --border-hover: #afb8c1;
     --fg: #1f2328;
     --fg-muted: #59636e;
-    --accent: #0969da;
-    --accent-soft: rgba(9, 105, 218, .10);
     --success: #1a7f37;
     --shadow: 0 10px 26px rgba(31, 35, 40, .10);
+  }
+
+  /* ---------- Цвета оформления (тёмная тема) ---------- */
+  html[data-accent="blue"] {
+    --accent: #2f81f7;
+    --accent-2: #1f6feb;
+    --accent-soft: rgba(47, 129, 247, .14);
+    --mark-a: #388bfd;
+    --mark-b: #1f6feb;
+  }
+
+  html[data-accent="red"] {
+    --accent: #f85149;
+    --accent-2: #da3633;
+    --accent-soft: rgba(248, 81, 73, .14);
+    --mark-a: #ff7b72;
+    --mark-b: #da3633;
+  }
+
+  html[data-accent="mint"] {
+    --accent: #3fd0b0;
+    --accent-2: #2bb39a;
+    --accent-soft: rgba(63, 208, 176, .14);
+    --mark-a: #5fe3c7;
+    --mark-b: #17a98d;
+  }
+
+  html[data-accent="purple"] {
+    --accent: #bc8cff;
+    --accent-2: #8957e5;
+    --accent-soft: rgba(188, 140, 255, .15);
+    --mark-a: #d2a8ff;
+    --mark-b: #8957e5;
+  }
+
+  /* ---------- Цвета оформления (светлая тема) ---------- */
+  html[data-theme="light"][data-accent="blue"] {
+    --accent: #0969da;
+    --accent-2: #0550ae;
+    --accent-soft: rgba(9, 105, 218, .10);
+    --mark-a: #388bfd;
+    --mark-b: #1f6feb;
+  }
+
+  html[data-theme="light"][data-accent="red"] {
+    --accent: #cf222e;
+    --accent-2: #a40e26;
+    --accent-soft: rgba(207, 34, 46, .10);
+    --mark-a: #f85149;
+    --mark-b: #cf222e;
+  }
+
+  html[data-theme="light"][data-accent="mint"] {
+    --accent: #0f766e;
+    --accent-2: #115e59;
+    --accent-soft: rgba(15, 118, 110, .10);
+    --mark-a: #2dd4bf;
+    --mark-b: #0f766e;
+  }
+
+  html[data-theme="light"][data-accent="purple"] {
+    --accent: #8250df;
+    --accent-2: #6639ba;
+    --accent-soft: rgba(130, 80, 223, .12);
+    --mark-a: #a475f9;
+    --mark-b: #8250df;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,7 +150,7 @@
     min-height: 100dvh;
     background: var(--canvas);
     color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    font-family: var(--ui-font);
     font-size: 14px;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
@@ -85,6 +179,7 @@
     min-height: 100dvh;
     min-height: var(--tg-viewport-stable-height, 100dvh);
     margin: 0 auto;
+    overflow: hidden;
     padding:
       calc(14px + env(safe-area-inset-top))
       16px
@@ -115,8 +210,9 @@
     height: 36px;
     border-radius: 10px;
     color: #fff;
-    background: linear-gradient(150deg, #388bfd 0%, #1f6feb 55%, #1a5fd0 100%);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 4px 12px rgba(31, 111, 235, .30);
+    background: linear-gradient(150deg, var(--mark-a) 0%, var(--mark-b) 100%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 4px 12px var(--accent-soft);
+    transition: background .2s ease;
   }
 
   .brand-text { min-width: 0; }
@@ -195,9 +291,11 @@
     background: var(--accent-soft);
     border: 1px solid var(--border);
     border-radius: 50%;
+    transition: color .2s ease, background-color .2s ease;
   }
 
   .avatar img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -220,22 +318,6 @@
     line-height: 1.4;
     color: var(--fg-muted);
   }
-
-  .note {
-    display: flex;
-    gap: 10px;
-    padding: 12px 13px;
-    font-size: 12.5px;
-    line-height: 1.45;
-    color: var(--fg-muted);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 10px;
-  }
-
-  .note svg { flex: none; margin-top: 1px; color: var(--accent); }
-  .note p { margin: 0; }
 
   /* ---------- Меню (прижато к низу) ---------- */
   .menu {
@@ -310,6 +392,7 @@
     background: var(--canvas-inset);
     border: 1px solid var(--border);
     border-radius: 9px;
+    transition: color .2s ease;
   }
 
   .action-text {
@@ -339,6 +422,249 @@
   .action:hover .chevron {
     color: var(--fg);
     transform: translateX(2px);
+  }
+
+  /* ---------- Экран настроек ---------- */
+  .settings {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    padding: inherit;
+    background: var(--canvas);
+    border-radius: inherit;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity .18s ease, transform .22s ease, visibility .22s;
+  }
+
+  .settings.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .settings-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 2px 0;
+  }
+
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: var(--fg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color .16s ease, border-color .16s ease;
+  }
+
+  .icon-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+  }
+
+  .icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .settings-top h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+
+  .settings-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 18px;
+    padding-top: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .setting-title {
+    margin: 0;
+    padding: 0 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  /* Палитра */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 2px 10px;
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+  }
+
+  .swatch:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+  }
+
+  .swatch:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .swatch-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .14) inset;
+    transition: box-shadow .16s ease;
+  }
+
+  .swatch--red .swatch-dot { background: #f85149; }
+  .swatch--blue .swatch-dot { background: #2f81f7; }
+  .swatch--mint .swatch-dot { background: #3fd0b0; }
+  .swatch--purple .swatch-dot { background: #bc8cff; }
+
+  .swatch[aria-checked="true"] {
+    color: var(--fg);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .swatch[aria-checked="true"] .swatch-dot {
+    box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--accent);
+  }
+
+  /* Шрифты */
+  .font-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .font-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    font: inherit;
+    color: var(--fg);
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color .16s ease, border-color .16s ease;
+  }
+
+  .font-option:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-hover);
+  }
+
+  .font-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .font-option[aria-checked="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .font-sample {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    background: var(--canvas-inset);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+
+  .font-sample--system { font-family: var(--font-system); }
+
+  .font-sample--mono {
+    font-family: "Drafting Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", monospace;
+  }
+
+  .font-meta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .font-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .font-note {
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+
+  .font-check {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: transparent;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+  }
+
+  .font-option[aria-checked="true"] .font-check {
+    color: var(--canvas);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .settings-note {
+    margin: 0;
+    padding: 0 2px;
+    font-size: 11.5px;
+    color: var(--fg-muted);
   }
 
   /* ---------- Тост ---------- */
@@ -373,10 +699,9 @@
   }
 
   .topbar    { animation: rise .35s ease backwards; }
-  .card      { animation: rise .4s .04s ease backwards; }
-  .note      { animation: rise .4s .08s ease backwards; }
-  .menu-head { animation: rise .4s .12s ease backwards; }
-  .action    { animation: rise .4s calc(.16s + var(--i) * .06s) ease backwards; }
+  .card      { animation: rise .4s .06s ease backwards; }
+  .menu-head { animation: rise .4s .1s ease backwards; }
+  .action    { animation: rise .4s calc(.14s + var(--i) * .06s) ease backwards; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -410,13 +735,24 @@
 </style>
 
 <script>
-  /* Тема до первой отрисовки — чтобы не было вспышки белым/чёрным */
+  /* Тема, цвет и шрифт до первой отрисовки — чтобы не было вспышки */
   (function () {
+    var root = document.documentElement;
     var scheme = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.colorScheme;
     if (!scheme) {
       scheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
     }
-    document.documentElement.dataset.theme = scheme === "light" ? "light" : "dark";
+    root.dataset.theme = scheme === "light" ? "light" : "dark";
+
+    try {
+      var accent = localStorage.getItem("sk-accent");
+      if (accent === "red" || accent === "blue" || accent === "mint" || accent === "purple") {
+        root.dataset.accent = accent;
+      }
+      if (localStorage.getItem("sk-font") === "mono") {
+        root.dataset.font = "mono";
+      }
+    } catch (e) { /* приватный режим — используем значения по умолчанию */ }
   })();
 </script>
 </head>
@@ -449,16 +785,9 @@
       </div>
       <div class="profile-text">
         <p class="hello" id="greeting">Привет!</p>
-        <p class="hint" id="profile-note">Выбери раздел в меню ниже.</p>
+        <p class="hint" id="profile-note">добро пожаловать</p>
       </div>
     </section>
-
-    <aside class="note">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>
-      </svg>
-      <p>Нажми на любую кнопку — сработает вибрация и появится уведомление. Это меню можно наполнить своими разделами.</p>
-    </aside>
 
     <section class="menu" aria-labelledby="menu-title">
       <div class="menu-head">
@@ -498,7 +827,7 @@
           </svg>
         </button>
 
-        <button class="action" type="button" data-action="3" style="--i:2">
+        <button class="action" type="button" data-action="settings" style="--i:2">
           <span class="action-icon">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3"/>
@@ -506,8 +835,8 @@
             </svg>
           </span>
           <span class="action-text">
-            <span class="action-title">Кнопка 3</span>
-            <span class="action-note">Настройки</span>
+            <span class="action-title">Настройки</span>
+            <span class="action-note">Цвет и шрифт</span>
           </span>
           <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m9 6 6 6-6 6"/>
@@ -516,6 +845,75 @@
       </div>
     </section>
   </main>
+
+  <!-- ---------- Настройки ---------- -->
+  <section class="settings" id="settings" aria-hidden="true" aria-labelledby="settings-title">
+    <header class="settings-top">
+      <button class="icon-btn" type="button" id="settings-back" aria-label="Назад">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m15 6-6 6 6 6"/>
+        </svg>
+      </button>
+      <h2 id="settings-title">Настройки</h2>
+    </header>
+
+    <div class="settings-body">
+      <section class="setting-group">
+        <h3 class="setting-title" id="accent-title">Цвет оформления</h3>
+        <div class="swatches" role="radiogroup" aria-labelledby="accent-title">
+          <button class="swatch swatch--red" type="button" data-accent="red" role="radio" aria-checked="false">
+            <span class="swatch-dot" aria-hidden="true"></span>
+            <span>Красный</span>
+          </button>
+          <button class="swatch swatch--blue" type="button" data-accent="blue" role="radio" aria-checked="true">
+            <span class="swatch-dot" aria-hidden="true"></span>
+            <span>Синий</span>
+          </button>
+          <button class="swatch swatch--mint" type="button" data-accent="mint" role="radio" aria-checked="false">
+            <span class="swatch-dot" aria-hidden="true"></span>
+            <span>Мятовый</span>
+          </button>
+          <button class="swatch swatch--purple" type="button" data-accent="purple" role="radio" aria-checked="false">
+            <span class="swatch-dot" aria-hidden="true"></span>
+            <span>Фиолетовый</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="setting-group">
+        <h3 class="setting-title" id="font-title">Шрифт</h3>
+        <div class="font-options" role="radiogroup" aria-labelledby="font-title">
+          <button class="font-option" type="button" data-font="system" role="radio" aria-checked="true">
+            <span class="font-sample font-sample--system" aria-hidden="true">Aa</span>
+            <span class="font-meta">
+              <span class="font-name">Системный</span>
+              <span class="font-note">Как сейчас</span>
+            </span>
+            <span class="font-check" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m5 12 4.5 4.5L19 7"/>
+              </svg>
+            </span>
+          </button>
+
+          <button class="font-option" type="button" data-font="mono" role="radio" aria-checked="false">
+            <span class="font-sample font-sample--mono" aria-hidden="true">Aa</span>
+            <span class="font-meta">
+              <span class="font-name">Drafting* Mono</span>
+              <span class="font-note">Моноширинный</span>
+            </span>
+            <span class="font-check" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m5 12 4.5 4.5L19 7"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <p class="settings-note">Настройки сохраняются на этом устройстве.</p>
+    </div>
+  </section>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -534,9 +932,22 @@
     var avatar = document.getElementById("avatar");
     var initials = document.getElementById("initials");
     var toastEl = document.getElementById("toast");
+    var settings = document.getElementById("settings");
+    var settingsBack = document.getElementById("settings-back");
+    var settingsBody = document.querySelector(".settings-body");
     var toastTimer = null;
+    var lastFocus = null;
 
-    /* ---------- Тема: берём из Telegram, иначе из системы ---------- */
+    /* ---------- Хранилище настроек ---------- */
+    function readSetting(key) {
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+
+    function writeSetting(key, value) {
+      try { localStorage.setItem(key, value); } catch (e) { /* noop */ }
+    }
+
+    /* ---------- Тема ---------- */
     function preferredScheme() {
       if (tg && tg.colorScheme) return tg.colorScheme;
       return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
@@ -557,6 +968,42 @@
       } catch (e) { /* старые клиенты — просто игнорируем */ }
     }
 
+    /* ---------- Цвета и шрифт ---------- */
+    var ACCENTS = ["red", "blue", "mint", "purple"];
+
+    function setAccent(name, persist) {
+      if (ACCENTS.indexOf(name) === -1) name = "blue";
+      root.dataset.accent = name;
+
+      Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (el) {
+        el.setAttribute("aria-checked", String(el.getAttribute("data-accent") === name));
+      });
+
+      if (persist) writeSetting("sk-accent", name);
+    }
+
+    function setFont(name, persist) {
+      name = name === "mono" ? "mono" : "system";
+      root.dataset.font = name;
+
+      Array.prototype.forEach.call(document.querySelectorAll(".font-option"), function (el) {
+        el.setAttribute("aria-checked", String(el.getAttribute("data-font") === name));
+      });
+
+      if (persist) writeSetting("sk-font", name);
+    }
+
+    function haptic(type) {
+      try {
+        if (tg && tg.HapticFeedback && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) {
+          if (type === "select") tg.HapticFeedback.selectionChanged();
+          else tg.HapticFeedback.impactOccurred("light");
+          return;
+        }
+        if (type === "tap" && navigator.vibrate) navigator.vibrate(8);
+      } catch (e) { /* noop */ }
+    }
+
     /* ---------- Уведомление внизу ---------- */
     function toast(message) {
       toastEl.textContent = message;
@@ -567,14 +1014,36 @@
       }, 1900);
     }
 
-    function tapFeedback() {
-      try {
-        if (tg && tg.HapticFeedback) {
-          tg.HapticFeedback.impactOccurred("light");
-        } else if (navigator.vibrate) {
-          navigator.vibrate(8);
-        }
-      } catch (e) { /* noop */ }
+    /* ---------- Настройки: открыть / закрыть ---------- */
+    function hasBackButton() {
+      return Boolean(tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1"));
+    }
+
+    function openSettings() {
+      lastFocus = document.activeElement;
+      settings.classList.add("is-open");
+      settings.setAttribute("aria-hidden", "false");
+      if (settingsBody) settingsBody.scrollTop = 0;
+      haptic("tap");
+
+      if (hasBackButton()) {
+        try { tg.BackButton.show(); } catch (e) {}
+      }
+      setTimeout(function () {
+        settingsBack.focus({ preventScroll: true });
+      }, 60);
+    }
+
+    function closeSettings() {
+      settings.classList.remove("is-open");
+      settings.setAttribute("aria-hidden", "true");
+
+      if (hasBackButton()) {
+        try { tg.BackButton.hide(); } catch (e) {}
+      }
+      if (lastFocus && lastFocus.focus) {
+        lastFocus.focus({ preventScroll: true });
+      }
     }
 
     /* ---------- Инициализация Telegram ---------- */
@@ -595,9 +1064,60 @@
           applyTheme(tg.colorScheme);
         });
       } catch (e) {}
+
+      // Системная кнопка «Назад» закрывает настройки
+      if (hasBackButton()) {
+        try {
+          tg.BackButton.onClick(function () {
+            if (settings.classList.contains("is-open")) closeSettings();
+          });
+        } catch (e) {}
+      }
     }
 
-    /* ---------- Профиль пользователя (если открыто в Telegram) ---------- */
+    /* ---------- Профиль пользователя ---------- */
+    function initialsOf(user) {
+      var first = user.first_name || user.username || "?";
+      var last = user.last_name ? user.last_name.charAt(0) : "";
+      return (first.charAt(0) + last).toUpperCase();
+    }
+
+    function renderAvatar(user) {
+      initials.textContent = initialsOf(user);
+
+      // photo_url приходит не всегда, поэтому пробуем ещё публичную аватарку по username
+      var sources = [];
+      if (user.photo_url) sources.push(user.photo_url);
+      if (user.username) {
+        sources.push("https://t.me/i/userpic/320/" + encodeURIComponent(user.username) + ".jpg");
+      }
+
+      var index = 0;
+
+      function tryNext() {
+        if (index >= sources.length) return; // остаются инициалы
+
+        var img = new Image();
+        img.alt = "";
+        img.decoding = "async";
+        img.referrerPolicy = "no-referrer";
+
+        img.onload = function () {
+          // Важно: заменяем содержимое, иначе инициалы и фото окажутся в двух строках грида
+          avatar.replaceChildren(img);
+        };
+
+        img.onerror = function () {
+          index += 1;
+          tryNext();
+        };
+
+        img.src = sources[index];
+      }
+
+      tryNext();
+    }
+
     function renderProfile() {
       var user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
       var insideTelegram = Boolean(tg && (tg.initData || user));
@@ -607,47 +1127,30 @@
         envText.textContent = "Telegram";
       }
 
-      if (user) {
-        var first = user.first_name || user.username || "друг";
-        greeting.textContent = "Привет, " + first + "!";
+      profileNote.textContent = "добро пожаловать";
 
-        profileNote.textContent = user.username
-          ? "@" + user.username + " · добро пожаловать"
-          : "Добро пожаловать в мини-приложение";
+      if (!user) return;
 
-        var letters = (user.first_name || user.username || "?")
-          .trim()
-          .charAt(0)
-          .toUpperCase();
-        if (user.last_name) letters += user.last_name.trim().charAt(0).toUpperCase();
+      greeting.textContent = user.username
+        ? "Привет, @" + user.username
+        : "Привет, " + (user.first_name || "друг");
 
-        if (user.photo_url) {
-          var img = document.createElement("img");
-          img.src = user.photo_url;
-          img.alt = "";
-          img.onerror = function () {
-            img.remove();
-            initials.textContent = letters;
-          };
-          avatar.appendChild(img);
-        } else {
-          initials.textContent = letters;
-        }
-      } else {
-        profileNote.textContent = "Открой приложение внутри Telegram — покажем твой профиль.";
-      }
+      renderAvatar(user);
     }
 
-    /* ---------- Кнопки меню ---------- */
+    /* ---------- Кнопки меню и настройки ---------- */
     function initActions() {
-      var buttons = document.querySelectorAll(".action");
-
-      Array.prototype.forEach.call(buttons, function (button) {
+      Array.prototype.forEach.call(document.querySelectorAll(".action"), function (button) {
         button.addEventListener("click", function () {
           var action = button.getAttribute("data-action");
           var label = button.querySelector(".action-title").textContent;
 
-          tapFeedback();
+          if (action === "settings") {
+            openSettings();
+            return;
+          }
+
+          haptic("tap");
           toast("«" + label + "» — раздел пока не подключён");
 
           /* Точка расширения: слушай событие и подключай свой экран.
@@ -659,10 +1162,34 @@
           } catch (e) {}
         });
       });
+
+      Array.prototype.forEach.call(document.querySelectorAll(".swatch"), function (button) {
+        button.addEventListener("click", function () {
+          setAccent(button.getAttribute("data-accent"), true);
+          haptic("select");
+        });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll(".font-option"), function (button) {
+        button.addEventListener("click", function () {
+          setFont(button.getAttribute("data-font"), true);
+          haptic("select");
+        });
+      });
+
+      settingsBack.addEventListener("click", closeSettings);
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && settings.classList.contains("is-open")) {
+          closeSettings();
+        }
+      });
     }
 
     initTelegram();
     applyTheme(preferredScheme());
+    setAccent(root.dataset.accent, false);
+    setFont(root.dataset.font, false);
     renderProfile();
     initActions();
   })();
